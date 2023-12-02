@@ -189,12 +189,28 @@ When `forge-only' and the `forge' package is available, then
 
 (defcustom magit-branch-direct-configure t
   "Whether the command `magit-branch' shows Git variables.
-When set to nil, no variables are displayed by this transient
-command, instead the sub-transient `magit-branch-configure'
-has to be used to view and change branch related variables."
-  :package-version '(magit . "2.7.0")
+
+Regardless of the value set here, all variables are always
+accessible through the submenu bound to  \\`c'.
+
+When nil, don't show any variables.
+
+When t (the default), show repository variables as well as
+  variables concerning the current branch.  The submenu can
+  be used to show variables for other branches.
+
+When `branch', show variables concerning the current branch,
+  but repository variables are only accessible through the
+  submenu.
+
+When `repository', show repository variables, but branch
+  variables are only accessible through the submenu."
+  :package-version '(magit . "4.0.0")
   :group 'magit-commands
-  :type 'boolean)
+  :type '(choice (const :tag "none" nil)
+                 (const :tag "repository and current branch variables" t)
+                 (const :tag "current branch variables" branch)
+                 (const :tag "repository variables" repository)))
 
 (defcustom magit-published-branches '("origin/master")
   "List of branches that are considered to be published."
@@ -208,18 +224,34 @@ has to be used to view and change branch related variables."
 (transient-define-prefix magit-branch (branch)
   "Add, configure or remove a branch."
   :man-page "git-branch"
+  [:if-non-nil magit-branch-direct-configure
+   :class transient-subgroups
+   [:if (lambda ()
+          (and (memq magit-branch-direct-configure '(t branch))
+               (oref (transient-prefix-object) scope)))
+    :description
+    (lambda ()
+      (format (propertize "Configure %s branch" 'face 'transient-heading)
+              (propertize (oref (transient-prefix-object) scope)
+                          'face 'magit-branch-local)))
+    ("d" magit-branch.<branch>.description)
+    ("u" magit-branch.<branch>.merge/remote)
+    ("r" magit-branch.<branch>.rebase)
+    ("p" magit-branch.<branch>.pushRemote)]
+   [:if (lambda () (memq magit-branch-direct-configure '(t repository)))
+    "Configure repository defaults"
+    ("R" magit-pull.rebase)
+    ("P" magit-remote.pushDefault)
+    ("D" "Update default branch" magit-update-default-branch
+     :inapt-if-not magit-get-some-remote)]
+   [:if (lambda () (memq magit-branch-direct-configure '(t repository)))
+    "Configure branch creation"
+    ("a m" magit-branch.autoSetupMerge)
+    ("a r" magit-branch.autoSetupRebase)]]
   ["Arguments"
    (7 "-r" "Recurse submodules when checking out an existing branch"
       "--recurse-submodules"
       :if (lambda () (magit-git-version>= "2.13")))]
-  ["Variables"
-   :if (lambda ()
-         (and magit-branch-direct-configure
-              (oref (transient-prefix-object) scope)))
-   ("d" magit-branch.<branch>.description)
-   ("u" magit-branch.<branch>.merge/remote)
-   ("r" magit-branch.<branch>.rebase)
-   ("p" magit-branch.<branch>.pushRemote)]
   [["Checkout"
     ("b" "branch/revision"   magit-checkout)
     ("l" "local branch"      magit-branch-checkout)
@@ -851,7 +883,7 @@ and also rename the respective reflog file."
   :man-page "git-branch"
   [:description
    (lambda ()
-     (concat (propertize "Configure " 'face 'transient-heading)
+     (format (propertize "Configure %s branch" 'face 'transient-heading)
              (propertize (oref (transient-prefix-object) scope)
                          'face 'magit-branch-local)))
    ("d" magit-branch.<branch>.description)
@@ -861,7 +893,7 @@ and also rename the respective reflog file."
   ["Configure repository defaults"
    ("R" magit-pull.rebase)
    ("P" magit-remote.pushDefault)
-   ("b" "Update default branch" magit-update-default-branch
+   ("D" "Update default branch" magit-update-default-branch
     :inapt-if-not magit-get-some-remote)]
   ["Configure branch creation"
    ("a m" magit-branch.autoSetupMerge)
