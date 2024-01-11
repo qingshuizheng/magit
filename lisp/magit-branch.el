@@ -259,12 +259,12 @@ changes.
                      (magit-branch-arguments)))
   (when (string-match "\\`heads/\\(.+\\)" revision)
     (setq revision (match-string 1 revision)))
-  (magit-run-git-async "sw" args revision))
+  (magit-run-git-async "stashonto" args revision))
 
 (defun magit--checkout (revision &optional args)
   (when (string-match "\\`heads/\\(.+\\)" revision)
     (setq revision (match-string 1 revision)))
-  (magit-call-git "sw" args revision))
+  (magit-call-git "stashonto" args revision))
 
 ;;;###autoload
 (defun magit-branch-create (branch start-point)
@@ -287,7 +287,7 @@ changes.
                        (list (magit-branch-arguments))))
   (if (string-match-p "^stash@{[0-9]+}$" start-point)
       (magit-run-git "stash" "branch" branch start-point)
-    (magit-run-git-async "sw" args "-b" branch start-point)
+    (magit-run-git-async "stashonto" args "-b" branch start-point)
     (set-process-sentinel
      magit-this-process
      (lambda (process event)
@@ -378,7 +378,7 @@ when using `magit-branch-and-checkout'."
    (t
     ;; (when (magit-anything-modified-p t)
     ;;   (user-error "Cannot checkout when there are uncommitted changes"))
-    (magit-run-git-async "sw" (magit-branch-arguments)
+    (magit-run-git-async "stashonto" (magit-branch-arguments)
                          "-b" branch start-point)
     (set-process-sentinel
      magit-this-process
@@ -413,7 +413,7 @@ when using `magit-branch-and-checkout'."
 (defun magit-branch-orphan (branch start-point)
   "Create and checkout an orphan BRANCH with contents from revision START-POINT."
   (interactive (magit-branch-read-args "Create and checkout orphan branch"))
-  (magit-run-git "sw" "--orphan" branch start-point))
+  (magit-run-git "stashonto" "--orphan" branch start-point))
 
 (defun magit-branch-read-args (prompt &optional default-start)
   (if magit-branch-read-upstream-first
@@ -505,7 +505,7 @@ from the source branch's upstream, then an error is raised."
                         branch from tracked)))
         (let ((magit-process-raise-error t))
           (if checkout
-              (magit-call-git "sw" "-b" branch current)
+              (magit-call-git "stashonto" "-b" branch current)
             (magit-call-git "branch" branch current)))
         (when-let ((upstream (magit-get-indirect-upstream-branch current)))
           (magit-call-git "branch" "--set-upstream-to" upstream branch))
@@ -521,7 +521,7 @@ from the source branch's upstream, then an error is raised."
                               (concat "refs/heads/" current) base)
             (magit-call-git "reset" "--hard" base))))
     (if checkout
-        (magit-call-git "sw" "-b" branch)
+        (magit-call-git "stashonto" "-b" branch)
       (magit-call-git "branch" branch)))
   (magit-refresh))
 
@@ -680,14 +680,14 @@ prompt is confusing."
                        (magit-confirm 'delete-unmerged-branch
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
-                     (magit-call-git "sw" "--detach"))
+                     (magit-call-git "stashonto" "--detach"))
             (`target (unless (or (equal force '(4))
                                  (member branch force)
                                  (magit-branch-merged-p branch target))
                        (magit-confirm 'delete-unmerged-branch
                          "Delete unmerged branch %s" ""
                          nil (list branch)))
-                     (magit-call-git "sw" target))
+                     (magit-call-git "stashonto" target))
             (`abort  (user-error "Abort")))
           (setq force t))
         (magit-branch-maybe-delete-pr-remote branch)

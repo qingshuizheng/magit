@@ -283,7 +283,7 @@ Then show the status buffer for the new repository."
               "`git sparse-checkout' not available until Git v2.25"))
            (let ((default-directory directory))
              (magit-call-git "sparse-checkout" "init" "--cone")
-             (magit-call-git "sw" (magit-get-current-branch))))
+             (magit-call-git "stashonto" (magit-get-current-branch))))
          (let ((default-directory directory))
            (run-hooks 'magit-post-clone-hook))
          (with-current-buffer (process-get process 'command-buf)
