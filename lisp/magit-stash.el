@@ -369,7 +369,7 @@ Then apply STASH, dropping it if it applies cleanly."
   (interactive (list (magit-read-stash "Branch stash")
                      (magit-read-string-ns "Branch name")))
   (let ((start-point (or (magit-get-current-branch) "HEAD")))
-    (magit-call-git "checkout" "-b" branch start-point)
+    (magit-call-git "sw" "-b" branch start-point)
     (magit-branch-maybe-adjust-upstream branch start-point))
   (magit-stash-apply stash))
 
@@ -400,7 +400,7 @@ Then apply STASH, dropping it if it applies cleanly."
                "apply" "--reverse" "--ignore-space-change" "-"))
           (unless (eq keep t)
             (if (eq keep 'index)
-                (magit-call-git "checkout" "--" ".")
+                (magit-call-git "sw" "--" ".")
               (magit-call-git "reset" "--hard" "HEAD" "--"))
             (when untracked
               (magit-call-git "clean" "--force" "-d"

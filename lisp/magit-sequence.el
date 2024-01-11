@@ -290,7 +290,7 @@ the process manually."
         (magit-call-git "branch" "--set-upstream-to" upstream dst)))
     (unless (equal dst current)
       (let ((magit-process-raise-error t))
-        (magit-call-git "checkout" dst)))
+        (magit-call-git "sw" dst)))
     (if (not src) ; harvest only
         (magit--cherry-pick commits args)
       (let ((tip (car (last commits)))
@@ -311,10 +311,10 @@ the process manually."
                                  (magit-ref-fullname src)
                                  keep tip)
                  (if (not checkout-dst)
-                     (magit-run-git "checkout" src)
+                     (magit-run-git "sw" src)
                    (magit-refresh)))
                 (t
-                 (magit-git "checkout" src)
+                 (magit-git "sw" src)
                  (with-environment-variables
                      (("GIT_SEQUENCE_EDITOR"
                        (format "%s -i -ne '/^pick (%s)/ or print'"
@@ -330,7 +330,7 @@ the process manually."
                             (magit-process-sentinel process event)
                           (process-put process 'inhibit-refresh t)
                           (magit-process-sentinel process event)
-                          (magit-run-git "checkout" dst))))))))))))))))
+                          (magit-run-git "sw" dst))))))))))))))))
 
 (defun magit--cherry-pick (commits args &optional revert)
   (let ((command (if revert "revert" "cherry-pick")))

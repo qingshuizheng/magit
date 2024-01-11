@@ -645,7 +645,7 @@ of a side, then keep that side without prompting."
   (magit-confirm-files 'resurrect files)
   (if (eq (magit-diff-type) 'staged)
       (magit-call-git "reset"  "--" files)
-    (magit-call-git "checkout" "--" files)))
+    (magit-call-git "sw" "--" files)))
 
 (defun magit-discard-files--delete (files status)
   (magit-confirm-files (if magit-delete-by-moving-to-trash 'trash 'delete)
@@ -668,7 +668,7 @@ of a side, then keep that side without prompting."
                             (setq temp (concat file ".~{index}~")))
                (delete-file temp t))
              (magit-call-git "rm" "--cached" "--force" "--" file))
-        (?D  (magit-call-git "checkout" "--" file)
+        (?D  (magit-call-git "sw" "--" file)
              (delete-file file t)
              (magit-call-git "rm" "--cached" "--force" "--" file))))))
 
@@ -693,7 +693,7 @@ of a side, then keep that side without prompting."
     (magit-confirm-files 'discard (append files new-files)
                          (format "Discard %s changes in" (magit-diff-type)))
     (if (eq (magit-diff-type (car sections)) 'unstaged)
-        (magit-call-git "checkout" "--" files)
+        (magit-call-git "sw" "--" files)
       (when new-files
         (magit-call-git "add"   "--" new-files)
         (magit-call-git "reset" "--" new-files))

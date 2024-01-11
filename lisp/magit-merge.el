@@ -149,7 +149,7 @@ then also remove the respective remote branch."
          (magit-merge-arguments)))
   (let ((current (magit-get-current-branch))
         (head (magit-rev-parse "HEAD")))
-    (when (zerop (magit-call-git "checkout" branch))
+    (when (zerop (magit-call-git "sw" branch))
       (if current
           (magit--merge-absorb current args)
         (magit-run-git-with-editor "merge" args head)))))
@@ -259,8 +259,8 @@ then also remove the respective remote branch."
     (_ (if (equal arg "--merge")
            ;; This fails if the file was deleted on one
            ;; side.  And we cannot do anything about it.
-           (magit-run-git "checkout" "--merge" "--" file)
-         (magit-call-git "checkout" arg "--" file)
+           (magit-run-git "sw" "--merge" "--" file)
+         (magit-call-git "sw" arg "--" file)
          (magit-run-git "add" "-u" "--" file)))))
 
 ;;; Utilities

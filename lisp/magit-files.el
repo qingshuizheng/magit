@@ -493,7 +493,7 @@ Git, then fallback to using `delete-file'."
                "Checkout from revision" magit-buffer-revision)))
      (list rev (magit-read-file-from-rev rev "Checkout file"))))
   (magit-with-toplevel
-    (magit-run-git "checkout" rev "--" file)))
+    (magit-run-git "sw" rev "--" file)))
 
 ;;; Read File
 
